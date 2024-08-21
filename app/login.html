@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fintech Advisor Login</title>
+</head>
+<body>
+    <h1>Fintech Advisor</h1>
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v11.0&appId=YOUR_FACEBOOK_APP_ID" nonce="random_nonce"></script>
+    
+    <div class="fb-login-button" data-width="" data-size="large" data-button-type="continue_with" data-layout="default" data-auto-logout-link="false" data-use-continue-as="false"></div>
+
+    <script>
+        function statusChangeCallback(response) {
+            if (response.status === 'connected') {
+                // The user is logged in and has authenticated your app
+                const accessToken = response.authResponse.accessToken;
+                sendTokenToServer(accessToken);
+            } else {
+                // The user is not logged in to Facebook
+                console.log('Please log into Facebook.');
+            }
+        }
+
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+        }
+
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : 'YOUR_FACEBOOK_APP_ID',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v11.0'
+            });
+            
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+        };
+
+        function sendTokenToServer(token) {
+            fetch('/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({fb_access_token: token}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Store the token in localStorage or sessionStorage
+                localStorage.setItem('accessToken', data.access_token);
+                // Redirect to the main app or update UI
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
